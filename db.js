@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const { DataTypes } = require('sequelize');
 require('dotenv').config();
 
 const DB_NAME = process.env.DB;
@@ -13,11 +14,19 @@ const sequelize = new Sequelize(
   {
     host: HOST_NAME,
     dialect: 'postgres',
-      port: 5433,
-})
+    port: 5433,
+    operatorsAliases: false,
+  });
+
+const Game = require('./models/game')(sequelize, DataTypes);
+const User = require('./models/user')(sequelize, DataTypes);
 
 sequelize.authenticate()
-         .then(() => console.log("Connected to DB"))
+         .then(() => console.log('Connected to DB'))
          .catch(err => console.log(`Error: ${err}`));
 
-module.exports = sequelize;
+module.exports = {
+  sequelize,
+  Game,
+  User,
+};
