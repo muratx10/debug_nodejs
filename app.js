@@ -11,6 +11,7 @@ const PORT = process.env.PORT;
 
 User.sync({ force: true }).then(() => console.log('DB Connected'));
 Game.sync({ force: true }).then(() => console.log('DB Game connected'));
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/api/auth', user);

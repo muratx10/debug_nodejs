@@ -12,41 +12,47 @@ router.post('/signup', async (req, res) => {
       email: req.body.user.email,
     });
 
-    if (!user) {
-      return res.status(400);
-    }
+    if (!user) return res.status(400);
 
-    const token = jwt.sign({id: user.id}, 'lets_play_sum_games_man', {expiresIn: 60 * 60 * 24});
+    const token = jwt.sign(
+      {id: user.id},
+      'lets_play_sum_games_man',
+      {expiresIn: 60 * 60 * 24},
+    );
 
     res.status(200).json({
       user: user,
       token: token,
     });
-  } catch (e) {
-    res.status(500).send(e.message)
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 
 router.post('/signin', async (req, res) => {
-  const user = await User.findOne({ where: { username: req.body.user.username } });
+  try {
+    const user = await User.findOne({where: {username: req.body.user.username}});
 
-  if (!user) return res.status(400).send({ message: 'User not found' });
+    if (!user) return res.status(400).send({message: 'User not found'});
 
-  const matches = await bcrypt.compare(req.body.user.password, user.passwordHash);
+    const matches = await bcrypt.compare(req.body.user.password, user.passwordHash);
 
-  if (matches) {
-    const token = jwt.sign(
-      {id: user.id},
-      'lets_play_sum_games_man',
-      {expiresIn: 60 * 60 * 24});
+    if (matches) {
+      const token = jwt.sign(
+        {id: user.id},
+        'lets_play_sum_games_man',
+        {expiresIn: 60 * 60 * 24});
 
-    res.json({
-      user: user,
-      message: 'Successfully authenticated',
-      sessionToken: token,
-    });
-  } else {
-    res.status(403).send({error: 'User not found.'});
+      res.json({
+        user: user,
+        message: 'Successfully authenticated',
+        sessionToken: token,
+      });
+    } else {
+      res.status(403).send({error: 'User not found.'});
+    }
+  } catch (err) {
+    res.status(500).send({message: err.message});
   }
 });
 

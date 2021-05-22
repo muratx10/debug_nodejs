@@ -1,40 +1,43 @@
 const router = require('express').Router();
 const {Game} = require('../db');
 
-router.get('/all', (req, res) => {
-  Game.findAll({where: {owner_id: req.user.id}})
-      .then(
-        function findSuccess(data) {
-          res.status(200).json({
-            games: data,
-            message: 'Data fetched.',
-          })
-        },
+router.get('/all', async (req, res) => {
+  try {
+    const games = await Game.findAll({
+      where: {
+        owner_id: req.user.id,
+      },
+    });
 
-        function findFail() {
-          res.status(500).json({
-            message: 'Data not found',
-          })
-        },
-      )
-})
+    if (!games) return res.status(500).send({message: 'Couldn\'t get games'});
 
-router.get('/:id', (req, res) => {
-  Game.findOne({where: {id: req.params.id, owner_id: req.user.id}})
-      .then(
-        function findSuccess(game) {
-          res.status(200).json({
-            game: game,
-          })
-        },
+    res.status(200).json({
+      games,
+      message: 'All games fetched.',
+    });
+  } catch (err) {
+    res.status(500).send({message: err.message});
+  }
+});
 
-        function findFail(err) {
-          res.status(500).json({
-            message: 'Data not found.',
-          })
-        },
-      )
-})
+router.get('/:id', async (req, res) => {
+  try {
+    const game = await Game.findOne({
+      where: {
+        id: req.params.id,
+        owner_id: req.user.id,
+      },
+    });
+
+    if (!game) return res.status(500).send({message: 'Data not found'});
+
+    res.status(200).json({
+      game,
+    });
+  } catch (err) {
+    res.status(500).send({message: err.message});
+  }
+});
 
 router.post('/create', async (req, res) => {
   try {
@@ -46,8 +49,6 @@ router.post('/create', async (req, res) => {
       user_rating: req.body.game.user_rating,
       have_played: req.body.game.have_played,
     });
-    console.log('Fucking game belo...')
-    console.log(game)
 
     if (!game) return res.status(500).send({message: 'Couldn\'t create game'});
 
@@ -58,61 +59,53 @@ router.post('/create', async (req, res) => {
   } catch (err) {
     res.status(500).send(err.message)
   }
+});
 
-
-})
-
-router.put('/update/:id', (req, res) => {
-  Game.update({
-      title: req.body.game.title,
-      studio: req.body.game.studio,
-      esrb_rating: req.body.game.esrb_rating,
-      user_rating: req.body.game.user_rating,
-      have_played: req.body.game.have_played,
-    },
-    {
-      where: {
-        id: req.params.id,
-        owner_id: req.body.user.id,
+router.put('/update/:id', async (req, res) => {
+  try {
+    const updatedGame = await Game.update({
+        title: req.body.game.title,
+        studio: req.body.game.studio,
+        esrb_rating: req.body.game.esrb_rating,
+        user_rating: req.body.game.user_rating,
+        have_played: req.body.game.have_played,
       },
-    })
-      .then(
-        function updateSuccess(game) {
-          res.status(200).json({
-            game: game,
-            message: 'Successfully updated.',
-          })
-        },
-
-        function updateFail(err) {
-          res.status(500).json({
-            message: err.message,
-          })
-        },
-      )
-})
-
-router.delete('/remove/:id', (req, res) => {
-  Game.destroy({
+      {
         where: {
           id: req.params.id,
-          owner_id: req.user.id,
+          owner_id: req.body.user.id,
         },
-      })
-      .then(
-        function deleteSuccess(game) {
-          res.status(200).json({
-            game: game,
-            message: 'Successfully deleted',
-          })
-        },
+      });
 
-        function deleteFail(err) {
-          res.status(500).json({
-            error: err.message,
-          })
-        },
-      )
+    if (!updatedGame) return res.status(500).send({message: 'Couldn\'t update data.'});
+
+    res.status(200).json({
+      game: updatedGame,
+      message: 'Successfully updated.',
+    });
+  } catch (err) {
+    res.status(500).send({message: err.message});
+  }
+});
+
+router.delete('/remove/:id', async (req, res) => {
+  try {
+    const deletedGame = await Game.destroy({
+      where: {
+        id: req.params.id,
+        owner_id: req.user.id,
+      },
+    });
+
+    if (!deletedGame) return res.status(500).send({message: 'Couldn\'t delete game'});
+
+    res.status(200).json({
+      game: deletedGame,
+      message: 'Successfully deleted',
+    })
+  } catch (err) {
+    res.status(500).send({message: err.message});
+  }
 })
 
 module.exports = router;
