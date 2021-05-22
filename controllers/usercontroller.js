@@ -3,21 +3,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../db');
 
+const { SECRET } = process.env;
+
 router.post('/signup', async (req, res) => {
   try {
+    const { full_name, username, password, email } = req.body.user;
+
     const user = await User.create({
-      full_name: req.body.user.full_name,
-      username: req.body.user.username,
-      passwordHash: bcrypt.hashSync(req.body.user.password, 10),
-      email: req.body.user.email,
+      full_name,
+      username,
+      passwordHash: bcrypt.hashSync(password, 10),
+      email,
     });
 
     if (!user) return res.status(400);
 
-    const token = jwt.sign(
-      { id: user.id },
-      'lets_play_sum_games_man',
-      { expiresIn: 60 * 60 * 24 },
+    const token = jwt.sign({ id: user.id }, SECRET, { expiresIn: 60 * 60 * 24 },
     );
 
     res.status(200).json({
@@ -25,7 +26,7 @@ router.post('/signup', async (req, res) => {
       token: token,
     });
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(503).send(err.message);
   }
 });
 
@@ -42,10 +43,7 @@ router.post('/signin', async (req, res) => {
     const matches = await bcrypt.compare(req.body.user.password, user.passwordHash);
 
     if (matches) {
-      const token = jwt.sign(
-        { id: user.id },
-        'lets_play_sum_games_man',
-        { expiresIn: 60 * 60 * 24 });
+      const token = jwt.sign({ id: user.id }, SECRET, { expiresIn: 60 * 60 * 24 });
 
       res.json({
         user: user,
@@ -56,7 +54,7 @@ router.post('/signin', async (req, res) => {
       res.status(401).send({ error: 'Bad credentials.' });
     }
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    res.status(503).send({ message: err.message });
   }
 });
 

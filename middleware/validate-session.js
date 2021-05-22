@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../db');
 
+const { SECRET } = process.env;
+
 module.exports = function (req, res, next) {
   if (req.method === 'OPTIONS') next();
   else {
@@ -8,7 +10,7 @@ module.exports = function (req, res, next) {
 
     if (!sessionToken) return res.status(403).send({ auth: false, message: 'No token provided.' });
     else {
-      jwt.verify(sessionToken, 'lets_play_sum_games_man', async (err, decoded) => {
+      jwt.verify(sessionToken, SECRET, async (err, decoded) => {
         if (decoded) {
           try {
             const user = User.findOne({

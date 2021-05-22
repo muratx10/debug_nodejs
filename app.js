@@ -12,12 +12,11 @@ const app = express();
 User.sync({ force: true }).then(() => console.log('DB Connected'));
 Game.sync({ force: true }).then(() => console.log('DB Game connected'));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use('/api/auth', user);
-app.use(validate_session);
-app.use('/api/game', game);
-
-app.listen(PORT, () => {
-    console.log(`App is listening on ${PORT}`);
-});
+app.use(bodyParser.urlencoded({ extended: false }))
+   .use(bodyParser.json())
+   .use('/api/auth', user)
+   .use(validate_session)
+   .use('/api/game', game)
+   .listen(PORT, () => {
+     console.log(`App is listening on ${PORT}`);
+   });

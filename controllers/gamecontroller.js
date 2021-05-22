@@ -16,7 +16,7 @@ router.get('/all', async (req, res) => {
       message: 'All games fetched.',
     });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    res.status(503).send({ message: err.message });
   }
 });
 
@@ -35,45 +35,52 @@ router.get('/:id', async (req, res) => {
       game,
     });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    res.status(503).send({ message: err.message });
   }
 });
 
 router.post('/create', async (req, res) => {
   try {
+    const { id: owner_id } = await req.user;
+    const { game: { title, studio, esrb_rating, user_rating, have_played } } = req.body;
+
     const game = await Game.create({
-      title: req.body.game.title,
-      owner_id: req.body.user.id,
-      studio: req.body.game.studio,
-      esrb_rating: req.body.game.esrb_rating,
-      user_rating: req.body.game.user_rating,
-      have_played: req.body.game.have_played,
+      title,
+      owner_id,
+      studio,
+      esrb_rating,
+      user_rating,
+      have_played,
     });
 
     if (!game) return res.status(400);
 
-    res.status(200).json({
+    res.status(201).json({
       game: game,
       message: 'Game created',
     });
   } catch (err) {
-    res.status(500).send(err.message)
+    res.status(503).send(err.message)
   }
 });
 
 router.put('/update/:id', async (req, res) => {
   try {
+    const { id: owner_id } = await req.user;
+    const { id } = req.params;
+    const { game: { title, studio, esrb_rating, user_rating, have_played } } = req.body;
+
     const updatedGame = await Game.update({
-        title: req.body.game.title,
-        studio: req.body.game.studio,
-        esrb_rating: req.body.game.esrb_rating,
-        user_rating: req.body.game.user_rating,
-        have_played: req.body.game.have_played,
+        title,
+        studio,
+        esrb_rating,
+        user_rating,
+        have_played,
       },
       {
         where: {
-          id: req.params.id,
-          owner_id: req.body.user.id,
+          id,
+          owner_id,
         },
       });
 
@@ -84,7 +91,7 @@ router.put('/update/:id', async (req, res) => {
       message: 'Successfully updated.',
     });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    res.status(503).send({ message: err.message });
   }
 });
 
@@ -99,12 +106,12 @@ router.delete('/remove/:id', async (req, res) => {
 
     if (!deletedGame) return res.status(404).send({ message: 'Game with such ID not found.' });
 
-    res.status(200).json({
+    res.status(204).json({
       game: deletedGame,
       message: 'Successfully deleted',
     })
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    res.status(503).send({ message: err.message });
   }
 });
 
