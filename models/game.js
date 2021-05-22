@@ -1,4 +1,4 @@
-function(sequelize, DataTypes) {
+module.exports = function(sequelize, DataTypes) {
     return sequelize.define('game', {
         title: {
             type: DataTypes.STRING(25),
@@ -12,7 +12,7 @@ function(sequelize, DataTypes) {
 
         studio: {
             type: DataTypes.STRING,
-            allowNull: false,            
+            allowNull: false,
         },
 
         esrb_rating: {
