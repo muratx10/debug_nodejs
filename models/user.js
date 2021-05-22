@@ -22,4 +22,4 @@ module.exports = (sequelize, DataTypes) =>
         isEmail: true,
       },
     },
-  })
+  });

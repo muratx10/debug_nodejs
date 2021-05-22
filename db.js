@@ -17,7 +17,6 @@ const sequelize = new Sequelize(
     host: HOST_NAME,
     dialect: DB_DIALECT,
     port: DB_PORT,
-    operatorsAliases: false,
   });
 
 const Game = require('./models/game')(sequelize, DataTypes);
