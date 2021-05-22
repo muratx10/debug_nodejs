@@ -10,7 +10,7 @@ module.exports = function (req, res, next) {
 
         if (!sessionToken) return res.status(403).send({ auth: false, message: "No token provided." });
         else {
-            jwt.verify(sessionToken.split[''][1], 'lets_play_sum_games_man', (err, decoded) => {
+            jwt.verify(sessionToken, 'lets_play_sum_games_man', (err, decoded) => {
                 if (decoded) {
                     User.findOne({ where: { id: decoded.id } }).then(user => {
                         req.user = user;
