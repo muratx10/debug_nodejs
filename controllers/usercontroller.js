@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {User} = require('../db');
+const { User } = require('../db');
 
 router.post('/signup', async (req, res) => {
   try {
@@ -15,9 +15,9 @@ router.post('/signup', async (req, res) => {
     if (!user) return res.status(400);
 
     const token = jwt.sign(
-      {id: user.id},
+      { id: user.id },
       'lets_play_sum_games_man',
-      {expiresIn: 60 * 60 * 24},
+      { expiresIn: 60 * 60 * 24 },
     );
 
     res.status(200).json({
@@ -31,17 +31,21 @@ router.post('/signup', async (req, res) => {
 
 router.post('/signin', async (req, res) => {
   try {
-    const user = await User.findOne({where: {username: req.body.user.username}});
+    const user = await User.findOne({
+      where: {
+        username: req.body.user.username,
+      },
+    });
 
-    if (!user) return res.status(400).send({message: 'User not found'});
+    if (!user) return res.status(400).send({ message: 'User not found' });
 
     const matches = await bcrypt.compare(req.body.user.password, user.passwordHash);
 
     if (matches) {
       const token = jwt.sign(
-        {id: user.id},
+        { id: user.id },
         'lets_play_sum_games_man',
-        {expiresIn: 60 * 60 * 24});
+        { expiresIn: 60 * 60 * 24 });
 
       res.json({
         user: user,
@@ -49,10 +53,10 @@ router.post('/signin', async (req, res) => {
         sessionToken: token,
       });
     } else {
-      res.status(403).send({error: 'User not found.'});
+      res.status(401).send({ error: 'Bad credentials.' });
     }
   } catch (err) {
-    res.status(500).send({message: err.message});
+    res.status(500).send({ message: err.message });
   }
 });
 

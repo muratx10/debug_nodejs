@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const {Game} = require('../db');
+const { Game } = require('../db');
 
 router.get('/all', async (req, res) => {
   try {
@@ -9,14 +9,14 @@ router.get('/all', async (req, res) => {
       },
     });
 
-    if (!games) return res.status(500).send({message: 'Couldn\'t get games'});
+    if (!games) return res.status(404).send({ message: 'Data not found' });
 
     res.status(200).json({
       games,
       message: 'All games fetched.',
     });
   } catch (err) {
-    res.status(500).send({message: err.message});
+    res.status(500).send({ message: err.message });
   }
 });
 
@@ -29,13 +29,13 @@ router.get('/:id', async (req, res) => {
       },
     });
 
-    if (!game) return res.status(500).send({message: 'Data not found'});
+    if (!game) return res.status(404).send({ message: 'Data not found' });
 
     res.status(200).json({
       game,
     });
   } catch (err) {
-    res.status(500).send({message: err.message});
+    res.status(500).send({ message: err.message });
   }
 });
 
@@ -50,7 +50,7 @@ router.post('/create', async (req, res) => {
       have_played: req.body.game.have_played,
     });
 
-    if (!game) return res.status(500).send({message: 'Couldn\'t create game'});
+    if (!game) return res.status(400);
 
     res.status(200).json({
       game: game,
@@ -77,14 +77,14 @@ router.put('/update/:id', async (req, res) => {
         },
       });
 
-    if (!updatedGame) return res.status(500).send({message: 'Couldn\'t update data.'});
+    if (!updatedGame) return res.status(400);
 
     res.status(200).json({
       game: updatedGame,
       message: 'Successfully updated.',
     });
   } catch (err) {
-    res.status(500).send({message: err.message});
+    res.status(500).send({ message: err.message });
   }
 });
 
@@ -97,15 +97,15 @@ router.delete('/remove/:id', async (req, res) => {
       },
     });
 
-    if (!deletedGame) return res.status(500).send({message: 'Couldn\'t delete game'});
+    if (!deletedGame) return res.status(404).send({ message: 'Game with such ID not found.' });
 
     res.status(200).json({
       game: deletedGame,
       message: 'Successfully deleted',
     })
   } catch (err) {
-    res.status(500).send({message: err.message});
+    res.status(500).send({ message: err.message });
   }
-})
+});
 
 module.exports = router;
