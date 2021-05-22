@@ -21,12 +21,15 @@ router.post('/signup', async (req, res) => {
     const token = jwt.sign({ id: user.id }, SECRET, { expiresIn: 60 * 60 * 24 },
     );
 
+    delete user?.dataValues?.passwordHash;
+    delete user?._previousdataValues?.passwordHash;
+
     res.status(200).json({
-      user: user,
-      token: token,
+      user,
+      token,
     });
   } catch (err) {
-    res.status(503).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -38,15 +41,18 @@ router.post('/signin', async (req, res) => {
       },
     });
 
-    if (!user) return res.status(400).send({ message: 'User not found' });
+    if (!user) return res.status(404).send({ message: 'User not found' });
 
     const matches = await bcrypt.compare(req.body.user.password, user.passwordHash);
 
     if (matches) {
       const token = jwt.sign({ id: user.id }, SECRET, { expiresIn: 60 * 60 * 24 });
 
+      delete user?.dataValues?.passwordHash;
+      delete user?._previousdataValues?.passwordHash;
+
       res.json({
-        user: user,
+        user,
         message: 'Successfully authenticated',
         sessionToken: token,
       });
@@ -54,7 +60,7 @@ router.post('/signin', async (req, res) => {
       res.status(401).send({ error: 'Bad credentials.' });
     }
   } catch (err) {
-    res.status(503).send({ message: err.message });
+    res.status(400).send({ message: err.message });
   }
 });
 

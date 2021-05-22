@@ -16,7 +16,7 @@ router.get('/all', async (req, res) => {
       message: 'All games fetched.',
     });
   } catch (err) {
-    res.status(503).send({ message: err.message });
+    res.status(400).send({ message: err.message });
   }
 });
 
@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
       game,
     });
   } catch (err) {
-    res.status(503).send({ message: err.message });
+    res.status(400).send({ message: err.message });
   }
 });
 
@@ -60,7 +60,7 @@ router.post('/create', async (req, res) => {
       message: 'Game created',
     });
   } catch (err) {
-    res.status(503).send(err.message)
+    res.status(400).send(err.message)
   }
 });
 
@@ -86,12 +86,13 @@ router.put('/update/:id', async (req, res) => {
 
     if (!updatedGame) return res.status(400);
 
-    res.status(200).json({
+    console.log(updatedGame)
+    res.status(202).json({
       game: updatedGame,
       message: 'Successfully updated.',
     });
   } catch (err) {
-    res.status(503).send({ message: err.message });
+    res.status(400).send({ message: err.message });
   }
 });
 
@@ -111,7 +112,7 @@ router.delete('/remove/:id', async (req, res) => {
       message: 'Successfully deleted',
     })
   } catch (err) {
-    res.status(503).send({ message: err.message });
+    res.status(400).send({ message: err.message });
   }
 });
 
